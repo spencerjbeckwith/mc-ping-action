@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-ec2": "^3.614.0",
     "dotenv": "^16.4.5",
     "ts-node": "^10.9.2"
   },

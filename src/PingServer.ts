@@ -60,6 +60,9 @@ export class PingServer {
                     default: break;
                 }
             });
+            socket.on("error", (err) => {
+                console.error(err);
+            });
         });
     }
 
