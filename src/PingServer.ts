@@ -54,10 +54,15 @@ export class PingServer {
                         const response = await this.handleHandshake(d);
                         if (response) {
                             socket.write(response);
+                        } else {
+                            socket.destroy();
                         }
                         break;
                     }
-                    default: break;
+                    default: {
+                        socket.destroy();
+                        break;
+                    }
                 }
             });
             socket.on("error", (err) => {
@@ -90,6 +95,23 @@ export class PingServer {
             }
 
             if (valid) {
+                // Prevent an actual login attempt
+                if (nextState === 2) {
+                    const errorMessage = JSON.stringify({
+                        text: "bruh you can't join this",
+                        bold: true,
+                    });
+                    const messageLength = writeVarInt(errorMessage.length);
+                    const packetLength = 1 + messageLength.length + errorMessage.length;
+                    const packet = new Uint8Array([
+                        ...writeVarInt(packetLength),
+                        0x00,
+                        ...messageLength,
+                        ...Buffer.from(errorMessage),
+                    ]);
+                    return packet;
+                }
+
                 const response = await this.onPing({
                     protocolVersion,
                     serverAddress,
