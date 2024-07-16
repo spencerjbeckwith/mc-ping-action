@@ -3,7 +3,7 @@ const CONTINUE_BIT = 0x80;
 
 /** Reads a VarInt from a buffer, and returns the value of the VarInt as well as its length in bytes */
 // Described: https://wiki.vg/Protocol#VarInt_and_VarLong
-export function readVarInt(data: Buffer, from = 0) {
+export function readVarInt(data: Buffer, from: number) {
     let value = 0;
     let position = 0;
     let byte: number;
@@ -22,6 +22,20 @@ export function readVarInt(data: Buffer, from = 0) {
 
     return {
         value,
-        length: offset,
+        length: offset - from,
     };
+}
+
+/** Converts a value into a VarInt, in the form of an array of bytes */
+export function writeVarInt(value: number) {
+    let bytes: number[] = [];
+    while (true) {
+        if ((value & ~SEGMENT_BITS) === 0) {
+            bytes.push(value);
+            break;
+        }
+        bytes.push((value & SEGMENT_BITS) | CONTINUE_BIT);
+        value = value >> 7;
+    }
+    return bytes;
 }
